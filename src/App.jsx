@@ -1,34 +1,99 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {useEffect, useState} from 'react'
 
+const KEY = 'cdf3da1a-7459-ef11-af60-00163e6496fc';
+const URL = 'https://api.text-mining.ir';
 function App() {
-  const [count, setCount] = useState(0)
+
+  const [token, setToken] = useState("");
+  const [text, setText] = useState("");
+
+    useEffect(() => {
+      async function fetchToken(){
+        const tokenObject = await fetch(`${URL}/api/Token/GetToken?apikey=${KEY}`);
+        const data = await tokenObject.json();
+        setToken(data.token);
+      }
+      fetchToken();
+    }, []);
+
+  console.log(token)
+  function langDetect(token, text) {
+
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Accept", "text/plain");
+    myHeaders.append("Authorization", `Bearer ${token}`);
+
+    const raw = JSON.stringify(text);
+    
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow"
+    };
+
+    fetch(`${URL}/api/LanguageDetection/Predict`, requestOptions)
+        .then((response) => response.text())
+        .then((result) => console.log(result))
+        .catch((error) => console.error(error));
+  }
+  
+  function textNormalize(token, text) {
+
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Accept", "text/plain");
+    myHeaders.append("Authorization", `Bearer ${token}`);
+
+    const raw = JSON.stringify({
+      "Text": text,
+      "ReplaceWildChar": true,
+      "ReplaceDigit": true,
+      "RefineSeparatedAffix": true,
+      "RefineQuotationPunc": false,
+      "RemoveExtraChar": true,
+      "ReplaceHamzeTanvinTashdidChar": true
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow"
+    };
+
+    fetch(`${URL}/api/PreProcessing/LightNormalizePersianWord`, requestOptions)
+        .then((response) => response.text())
+        .then((result) => console.log(result))
+        .catch((error) => console.error(error));
+
+  }
+
+function clickHandler() {
+  langDetect(token,text)
+  textNormalize(token,text)
+}
+
+
+
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+      <>
+        <TextArea text={text} setText={setText} />
+        <button onClick={clickHandler}/>
+      </>
   )
 }
 
-export default App
+function TextArea({text, setText}) {
+  const handleChange = (event) => {
+    setText(event.target.value);
+  };
+
+  return (
+      <textarea value={text} onChange={handleChange}></textarea>
+  )
+}
+
+
+export default App;
