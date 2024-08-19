@@ -1,0 +1,88 @@
+@font-face {
+    font-family: Vazir;
+    src: url("/font/Vazir.ttf");
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Vazir;
+    src: url("/font/Vazir-Bold.ttf");
+    font-weight: bold;
+    font-display: swap;
+}
+
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Vazir, Tahoma, Helvetica, sans-serif;
+}
+
+html{
+    font-size: 62.5%;
+}
+
+body {
+    line-height: 1;
+    direction: rtl;
+    padding: 2rem;
+}
+
+.navbar{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    border-radius: 0.9rem;
+    background-color: #0c8599;
+    height: 6rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);;
+}
+
+.logo{
+    display: flex;
+    font-size: 3rem;
+    padding: 1.5rem;
+    color: #fff;
+}
+
+.main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem;
+}
+
+.textArea{
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    width: 60rem;
+    height: 30rem;
+    border-color: #ced4da;
+    padding: 1rem;
+    resize: none;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.textArea:focus{
+    outline: none !important;
+    border:1px solid #adb5bd;
+    box-shadow: 0 0 10px #dde3ec;
+}
+
+.textEdited{
+    font-size: 2rem;
+    display: flex;
+    width: 60rem;
+    height: 30rem;
+    border: 1px solid #ced4da;
+    padding: 1rem;
+    resize: none;
+    border-radius: 1rem;
+    background-color: #f8f9fa;
+    line-height: 3rem;
+}
