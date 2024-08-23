@@ -50,9 +50,12 @@ body {
 .main{
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
     gap: 1rem;
-    margin: 1rem;
+}
+
+span{
+    color: #495057;
 }
 
 .textArea{
@@ -74,6 +77,19 @@ body {
     box-shadow: 0 0 10px #dde3ec;
 }
 
+.right-container{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 2rem;
+}
+
+.left-container{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 .textEdited{
     font-size: 2rem;
     display: flex;
@@ -85,4 +101,49 @@ body {
     border-radius: 1rem;
     background-color: #f8f9fa;
     line-height: 3rem;
+}
+
+.up-box {
+    display: flex;
+    align-items: center;
+    margin: 1rem 13rem 1rem 13rem;
+    padding-right: 1.4rem;
+}
+.up-text{
+    display: flex;
+    flex: 1;
+    font-size: 1.5rem;
+    align-items: center;
+}
+
+.buttons{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.button{
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 1rem;
+    cursor: pointer;
+}
+
+.errorButton{
+    background-color: #f6d5d8;
+    color: #fd0000;
+}
+
+.errorButtonActive{
+    border: 0.2rem solid #fd0000;
+}
+
+.puncButton{
+    background-color: #d7f6d5;
+    color: #009338;
+}
+
+.puncButtonActive{
+    border: 0.2rem solid #009338;
 }
