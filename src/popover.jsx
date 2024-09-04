@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useState } from 'react';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
 
@@ -8,7 +8,6 @@ const TextWithPopover = ({ textEdited, setTextEdited}) => {
     const [popoverContent, setPopoverContent] = useState([]);
     const [clickedWordId, setClickedWordId] = useState(null);
 
-    // Add a unique id to each text segment to avoid deleting all instances
     const textWithIds = Array.isArray(textEdited) ? textEdited.map((txtEdt, index) => ({
         ...txtEdt,
         id: index
@@ -18,7 +17,10 @@ const TextWithPopover = ({ textEdited, setTextEdited}) => {
         const found = textWithIds.find((txtEdt) => txtEdt.id === id);
 
         if (found) {
-            setPopoverContent(found.EditList.map((editItem) => editItem.SuggestedText));
+            setPopoverContent(found.EditList.map((editItem) => ({
+                suggestedText: editItem.SuggestedText,
+                description: editItem.Description
+            })));
             setAnchorEl(event.currentTarget);
             setClickedWordId(id);
         } else {
@@ -41,10 +43,10 @@ const TextWithPopover = ({ textEdited, setTextEdited}) => {
 
         const indexToRemove = textWithIds.findIndex((txtEdt) => txtEdt.id === clickedWordId);
 
-        // Build the updated text array
+
         let updatedText = textWithIds.reduce((acc, txtEdt, index) => {
             if (index === indexToRemove) {
-                // Add a single space if the previous element exists and the current element is not the last one
+
                 if (acc.length > 0 && index < textWithIds.length - 1) {
                     acc[acc.length - 1].OriginalText = acc[acc.length - 1].OriginalText.trim() + ' ';
                 }
@@ -54,7 +56,7 @@ const TextWithPopover = ({ textEdited, setTextEdited}) => {
             return acc;
         }, []);
 
-        // After updating the text, remove extra spaces
+
         updatedText = removeExtraSpaces(updatedText);
 
         setTextEdited(updatedText);
@@ -67,7 +69,7 @@ const TextWithPopover = ({ textEdited, setTextEdited}) => {
         setClickedWordId(null);
     };
 
-    // Helper function to remove extra spaces between segments
+
     const removeExtraSpaces = (textArray) => {
         return textArray.reduce((acc, curr, index) => {
             if (index > 0) {
@@ -99,7 +101,7 @@ const TextWithPopover = ({ textEdited, setTextEdited}) => {
                             cursor: 'pointer',
                             fontFamily: 'Vazir, sans-serif',
                             color: '#333',
-                            backgroundColor: clickedWordId === segment.id ? '#a5d8ff' : segment.EditList.length > 0 ? '#F7D7DA': 'transparent' ,
+                            backgroundColor: clickedWordId === segment.id ? '#a5d8ff' : segment.EditList.length > 0 ? '#F7D7DA' : 'transparent',
                             borderRadius: '4px',
                             '&:hover': {
                                 backgroundColor: '#a5d8ff',
@@ -131,26 +133,41 @@ const TextWithPopover = ({ textEdited, setTextEdited}) => {
                         flexDirection: 'column',
                         gap: '8px',
                         fontSize: '16px',
-                        fontFamily: 'Verdana, sans-serif',
+                        fontFamily: 'Vazir, Verdana, sans-serif',
                         color: '#555',
                     }}
                 >
                     {popoverContent.length > 0 ? (
-                        popoverContent.map((suggestedWord, index) => (
-                            <span
-                                key={index}
-                                onClick={() => handleReplace(suggestedWord)}
-                                style={{
-                                    cursor: 'pointer',
-                                    padding: '4px 8px',
-                                    color: '#007bff',
-                                    backgroundColor: '#f0f0f0',
-                                    borderRadius: '4px',
-                                    whiteSpace: 'nowrap',
-                                }}
-                            >
-                                {suggestedWord}
-                            </span>
+                        popoverContent.map((item, index) => (
+                            <div key={index} style={{ marginBottom: '8px' }}>
+                                <div
+                                    onClick={() => handleReplace(item.suggestedText)}
+                                    style={{
+                                        cursor: 'pointer',
+                                        padding: '4px 8px',
+                                        color: '#007bff',
+                                        backgroundColor: '#f0f0f0',
+                                        borderRadius: '4px',
+                                        whiteSpace: 'nowrap',
+                                        display: 'block',
+                                    }}
+                                >
+                                    {item.suggestedText}
+                                    <span> </span>
+                                    <span
+                                        style={{
+                                            color: '#555',
+                                            fontSize: '1rem',
+                                            //paddingRight: '0.5rem',
+                                            marginTop: '4px',
+                                            fontFamily: 'Vazir, Verdana, sans-serif',
+                                        }}
+                                    >
+                                    {item.description}
+                                </span>
+                                </div>
+
+                            </div>
                         ))
                     ) : (
                         <Typography
@@ -159,9 +176,10 @@ const TextWithPopover = ({ textEdited, setTextEdited}) => {
                                 fontSize: '14px',
                                 fontStyle: 'italic',
                                 padding: '4px',
+                                fontFamily: 'Vazir, Verdana, sans-serif',
                             }}
                         >
-                            No suggestions
+                            بدون پیشنهاد ویرایشی
                         </Typography>
                     )}
                     <span

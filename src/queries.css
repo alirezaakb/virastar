@@ -1,0 +1,8 @@
+@media (max-width: 80em ) {
+
+    .texts{
+        flex-direction: column;
+    }
+
+
+}

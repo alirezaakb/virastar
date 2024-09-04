@@ -1,7 +1,7 @@
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import TextWithPopover from "./popover.jsx";
 
-const KEY = '5d697140-3e5f-ef11-af60-00163e6496fc';
+const KEY = '257d4946-7d62-ef11-af60-00163e6496fc';
 const URL = 'https://api.text-mining.ir';
 
 function App() {
@@ -14,24 +14,24 @@ function App() {
     const [errorFinding, setErrorFinding] = useState(true);
     const [punctuation, setPunctuation] = useState(false);
     const [puncText, setPuncText] = useState("");
+    const [error, setError] = useState("");
 
-    console.log(textEdited)
-    //console.log(textNormalized);
-
-        // دریافت توکن فقط یکبار و ذخیره در state
         useEffect(() => {
             const fetchToken = async () => {
                 try {
+                    setError("");
                     const tokenObject = await fetch(`${URL}/api/Token/GetToken?apikey=${KEY}`);
                     const data = await tokenObject.json();
                     setToken(data.token);
-                } catch (error) {
-                    console.error('Error fetching token:', error);
+                } catch (e) {
+                    if (e.name !== 'AbortError') {
+                        setError("اتصال برقرار نیست");
+                    }
                 }
             };
 
             fetchToken();
-        }, []); // خالی بودن آرایه dependencies باعث می‌شود که این effect فقط یک‌بار اجرا شود.
+        }, []);
 
     async function textNormalize() {
         const myHeaders = new Headers();
@@ -60,9 +60,19 @@ function App() {
         const data = await res.text();
         setTextNormalized(data);
     }
-        // تابعی که نیاز به توکن دارد
+
         const textEditor = async () => {
-            if (!token) return; // اگر توکن هنوز دریافت نشده، اجرا نمی‌شود.
+            if (!token) return;
+
+            function checkData(res) {
+                if (!res.ok) {
+                    throw new Error("Something went wrong")
+                }
+            }
+
+            function checkResponse(data) {
+                if (data.Response === "False") throw new Error("مشکل");
+            }
 
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
@@ -128,22 +138,37 @@ function App() {
             };
 
             try {
+                setError("");
                 const res = await fetch(`${URL}/api/Virastar/ScanText`, requestOptions);
+                checkData(res);
                 const result = await res.json();
+                console.log(result)
+                checkResponse(result);
                 setTextEdited(result);
-            } catch (error) {
-                console.error('Error in textEditor:', error);
+            } catch (e) {
+                if (e.name !== 'AbortError') {
+                    setError("مشکلی به وجود آمده است");
+                }
             }
         };
 
         useEffect(() => {
+            if(!text){
+                setTextEdited([]);
+                setPuncText("");
+            }
+
+            let char = new RegExp("[\u0600-\u06FF]");
+            if (char.test(text) === true){
             if (token) {
                 textEditor();
                 PunctuationRestoration();
-                 // اجرای تابع textEditor زمانی که توکن دریافت شد
             }
-        }, [text]); // این useEffect وقتی توکن تغییر کرد (دریافت شد) اجرا می‌شود
-
+            }
+            else if(text){
+                setError("لطفا متن فارسی وارد کنید.")
+            }
+        }, [text]);
 
     async function PunctuationRestoration() {
         const myHeaders = new Headers();
@@ -172,18 +197,21 @@ function App() {
         }
 
     }
-    
-    
   return (
       <>
         <NavBar/>
-        <UpBox errorFinding={errorFinding} setErrorFinding={setErrorFinding} punctuation={punctuation} setPunctuation={setPunctuation}/>
         <Main>
+        <UpBox errorFinding={errorFinding} setErrorFinding={setErrorFinding} punctuation={punctuation} setPunctuation={setPunctuation}/>
+        <Texts>
         <TextArea text={text} setText={setText} token={token} />
         <TextEdited>
-            {errorFinding === true ? <TextWithPopover textEdited={textEdited} setTextEdited={setTextEdited}/> : (errorFinding === false && punctuation === true ?
+            {errorFinding === true && text ? <TextWithPopover textEdited={textEdited} setTextEdited={setTextEdited} setTextNormalized={setTextNormalized}/> : (errorFinding === false && punctuation === true ?
             <TextWithPunctuation puncText={puncText}/> : "")}
+
+            {error && <ErrorMessage message={error}/>}
+
         </TextEdited>
+        </Texts>
         </Main>
       </>
   )
@@ -222,6 +250,17 @@ function UpBox({errorFinding, setErrorFinding, punctuation, setPunctuation}) {
     );
 }
 
+function ErrorMessage({message}) {
+    return (
+        <p className="error">
+            <span>
+                ❌{message}
+            </span>
+        </p>
+
+    );
+}
+
 function TextArea({text, setText}) {
   function changeHandler(event) {
     const textarea = event.target;
@@ -239,16 +278,41 @@ function TextArea({text, setText}) {
   )
 }
 
+
 function TextEdited({children}) {
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("متن کپی شد!");
+        }).catch(err => {
+            alert("کپی کردن متن با مشکل مواجه شد");
+            console.error("Failed to copy text: ", err);
+        });
+    }
+    const handleCopyClick = () => {
+        let textToCopy = "";
+        if (children) {
+            const textArray = React.Children.map(children, child => {
+                if (typeof child === "string") {
+                    textToCopy += child;
+                }
+            });
+        }
+        copyToClipboard(textToCopy);
+    };
 
     return (
-      <div className="left-container">
-      <div className="textEdited">
-        {children}
-      </div>
-      </div>
-  );
+        <div className="left-container">
+            <div className="textEdited">
+                {children}
+            </div>
+            <button className="copyButton" onClick={handleCopyClick}><svg xmlns="http://www.w3.org/2000/svg" height="2rem" width="2rem" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" />
+            </svg>
+            </button>
+        </div>
+    );
 }
+
 
 function TextWithPunctuation({puncText}) {
     return (
@@ -256,12 +320,20 @@ function TextWithPunctuation({puncText}) {
     );
 }
 
-function Main({children}) {
+function Texts({children}) {
   return (
-      <main className="main">
+      <main className="texts">
         {children}
       </main>
   );
+}
+
+function Main({children}) {
+    return (
+        <main className="main">
+            {children}
+        </main>
+    );
 }
 
 export default App;
