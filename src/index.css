@@ -175,3 +175,28 @@ span{
 .copyButton:hover {
     background-color: #45a049;
 }
+
+.toolbar {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 1rem;
+}
+
+.toolbar button {
+    margin-right: 1rem;
+    padding: 0.5rem;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.toolbar button:hover {
+    background-color: #e0e0e0;
+}
+
+.textEdited {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
