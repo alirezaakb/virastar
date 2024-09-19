@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import TextWithPopover from "./popover.jsx";
 
-const KEY = '257d4946-7d62-ef11-af60-00163e6496fc';
+const KEY = '56327a00-5b74-ef11-af60-00163e6496fc';
 const URL = 'https://api.text-mining.ir';
 
 function App() {
@@ -61,23 +61,24 @@ function App() {
         setTextNormalized(data);
     }
 
-        const textEditor = async () => {
-            if (!token) return;
 
-            function checkData(res) {
-                if (!res.ok) {
-                    throw new Error("Something went wrong")
+            const textEditor = async () => {
+                if (!token) return;
+
+                function checkData(res) {
+                    if (!res.ok) {
+                        throw new Error("Something went wrong")
+                    }
                 }
-            }
 
-            function checkResponse(data) {
-                if (data.Response === "False") throw new Error("مشکل");
-            }
+                function checkResponse(data) {
+                    if (data.Response === "False") throw new Error("مشکل");
+                }
 
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
-            myHeaders.append("Accept", "text/plain");
-            myHeaders.append("Authorization", `Bearer ${token}`);
+                const myHeaders = new Headers();
+                myHeaders.append("Content-Type", "application/json");
+                myHeaders.append("Accept", "text/plain");
+                myHeaders.append("Authorization", `Bearer ${token}`);
 
             const raw = JSON.stringify({
                 "Text": text,
